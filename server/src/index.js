@@ -1,34 +1,17 @@
+const router = require("./router");
+const Doc = require("./model");
+
 const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 const cors = require("cors");
+const mongoose = require("mongoose");
 
-const initialValue = {
-  document: {
-    nodes: [
-      {
-        object: "block",
-        type: "paragraph",
-        nodes: [
-          {
-            object: "text",
-            text: "你现在正处于一个组群当中。",
-          },
-        ],
-      },
-    ],
-  },
-};
-let groupsValue = {};
-
-io.on("connection", (socket) => {
-  socket.on("new-operations", (data) => {
-    // console.log(data);
-    const { from: editorId, to: groupId, value } = data;
-    groupsValue[groupId] = value;
-    io.emit(`remote-operations-to-${groupId}`, data);
-  });
+mongoose.connect("mongodb://localhost/miniDoc", { useNewUrlParser: true });
+const db = mongoose.connection;
+db.once("open", () => {
+  console.log("database connected succussfully.");
 });
 
 app.use(
@@ -36,13 +19,25 @@ app.use(
     origin: "http://localhost:3000",
   })
 );
+app.use("/", router);
 
-app.get("/groups/:id", (req, res) => {
-  const { id } = req.params;
-  if (!(id in groupsValue)) {
-    groupsValue[id] = initialValue;
-  }
-  res.json(groupsValue[id]);
+io.on("connection", (socket) => {
+  socket.on("new-operations", (data) => {
+    const { to: groupId, value } = data;
+    const callback = (err, doc) => {
+      if (err) console.log(err);
+      if (doc) {
+        doc.value = value;
+        doc.save();
+        io.emit(`remote-operations-to-${groupId}`, data);
+      }
+    };
+    if (groupId === "public") {
+      Doc.findOne({ author: "public" }, callback);
+    } else {
+      Doc.findById(groupId, callback);
+    }
+  });
 });
 
 server.listen(4000, () => {

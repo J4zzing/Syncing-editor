@@ -1,6 +1,6 @@
 import { Value } from "slate";
 
-export const initialValue = Value.fromJSON({
+export const loadingValue = Value.fromJSON({
   document: {
     nodes: [
       {
@@ -9,7 +9,7 @@ export const initialValue = Value.fromJSON({
         nodes: [
           {
             object: "text",
-            text: "A line of text in a paragraph.",
+            text: "加载中...",
           },
         ],
       },

@@ -6,12 +6,8 @@ import SyncingEditor from "./components/SyncingEditor";
 function App() {
   return (
     <BrowserRouter>
-      <Route
-        exact
-        path="/"
-        render={() => <Redirect to={`/group/${Date.now()}`} />}
-      />
-      <Route path="/group/:id" component={SyncingEditor} />
+      <Route exact path="/" render={() => <Redirect to="/groups/public" />} />
+      <Route path="/groups/:id" component={SyncingEditor} />
     </BrowserRouter>
   );
 }
