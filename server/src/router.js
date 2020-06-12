@@ -2,9 +2,10 @@ const router = require("express").Router();
 const Doc = require("./model");
 
 const initialValue = {
-  author: "public",
+  object: "value",
   value: {
     document: {
+      object: "document",
       nodes: [
         {
           object: "block",
@@ -19,10 +20,37 @@ const initialValue = {
       ],
     },
   },
+  group: "public",
 };
 
+router
+  .get("/groups/", (req, res) => {
+    Doc.find({}, "_id group", (err, docs) => {
+      if (err) console.log(err);
+      if (!docs) {
+        res.status(404).json({
+          reason: "No docs exist in server.",
+        });
+      }
+      res.json(docs);
+    });
+  })
+  .post("/groups/", (req, res) => {
+    const { group } = req.params;
+    if (!group) {
+      res.status(400).json({
+        error: {
+          reason: "Not specified group name.",
+        },
+      });
+    }
+    const doc = new Doc({ group });
+    doc.save();
+    res.json(doc);
+  });
+
 router.get("/groups/public", (_req, res) => {
-  Doc.findOne({ author: "public" }, (err, doc) => {
+  Doc.findOne({ group: "public" }, (err, doc) => {
     if (err) console.log(err);
     if (!doc) {
       doc = new Doc(initialValue);
@@ -38,7 +66,9 @@ router.get("/groups/:id", (req, res) => {
     if (err) console.log(err);
     if (!doc) {
       res.status(404).json({
-        reason: "Not Found.",
+        error: {
+          reason: "Not Found.",
+        },
       });
     }
     res.json(doc);

@@ -2,37 +2,49 @@ import React from "react";
 import { RenderBlockProps, RenderMarkProps } from "slate-react";
 
 export const BoldMark = (props: RenderMarkProps) => {
-  return <strong>{props.children}</strong>;
+  const { attributes, children } = props;
+  return <strong {...attributes}>{children}</strong>;
 };
 
 export const ItalicMark = (props: RenderMarkProps) => {
-  return <em>{props.children}</em>;
+  const { attributes, children } = props;
+  return <em {...attributes}>{children}</em>;
 };
 
 export const UnderscoreMark = (props: RenderMarkProps) => {
-  return <u>{props.children}</u>;
+  const { attributes, children } = props;
+  return <u {...attributes}>{children}</u>;
 };
 
 export const CodeMark = (props: RenderMarkProps) => {
-  return <code>{props.children}</code>;
+  const { attributes, children } = props;
+  return <code {...attributes}>{children}</code>;
 };
 
 export const StrikethroughMark = (props: RenderMarkProps) => {
-  return <del>{props.children}</del>;
+  const { attributes, children } = props;
+  return <del {...attributes}>{children}</del>;
+};
+
+export const Paragraph = (props: RenderBlockProps) => {
+  const { attributes, children } = props;
+  return <p {...attributes}>{children}</p>;
 };
 
 export const CodeBlock = (props: RenderBlockProps) => {
+  const { attributes, children } = props;
   return (
-    <pre {...props.attributes}>
-      <code>{props.children}</code>
+    <pre {...attributes}>
+      <code>{children}</code>
     </pre>
   );
 };
 
 export const QuoteBlock = (props: RenderBlockProps) => {
+  const { attributes, children } = props;
   return (
-    <blockquote className="blockquote" {...props.attributes}>
-      {props.children}
+    <blockquote className="blockquote" {...attributes}>
+      {children}
     </blockquote>
   );
 };

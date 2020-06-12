@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
       }
     };
     if (groupId === "public") {
-      Doc.findOne({ author: "public" }, callback);
+      Doc.findOne({ group: "public" }, callback);
     } else {
       Doc.findById(groupId, callback);
     }

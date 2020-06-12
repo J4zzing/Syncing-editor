@@ -1,14 +1,23 @@
 import React from "react";
-import "./App.css";
 import { BrowserRouter, Route, Redirect } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.css";
 import SyncingEditor from "./components/SyncingEditor";
+import "./App.css";
+import { DocHeader } from "./components/DocHeader";
+import { DocList } from "./components/DocList";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Route exact path="/" render={() => <Redirect to="/groups/public" />} />
-      <Route path="/groups/:id" component={SyncingEditor} />
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <DocHeader />
+        <Route exact path="/" render={() => <Redirect to="/groups/public" />} />
+        <Route exact path="/groups/" component={DocList} />
+        <Route path="/groups/:id">
+          <SyncingEditor />
+        </Route>
+      </BrowserRouter>
+    </>
   );
 }
 

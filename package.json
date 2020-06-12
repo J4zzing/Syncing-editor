@@ -1,0 +1,12 @@
+{
+  "name": "google-doc-clone",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["frontend", "server"],
+  "repository": "git@github.com:rockhamx/Syncing-editor.git",
+  "author": "rockham <rockham@live.cn>",
+  "license": "MIT",
+  "scripts": {
+    "start": "yarn run --pararell"
+  }
+}

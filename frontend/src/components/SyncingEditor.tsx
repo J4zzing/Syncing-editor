@@ -6,11 +6,10 @@ import {
   RenderBlockProps,
   RenderMarkProps,
 } from "slate-react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useParams } from "react-router-dom";
 // import _ from "lodash";
 import io from "socket.io-client";
 
-import "bootstrap/dist/css/bootstrap.css";
 import { loadingValue } from "./loadingValue";
 import {
   CodeBlock,
@@ -20,6 +19,7 @@ import {
   CodeMark,
   StrikethroughMark,
   QuoteBlock,
+  Paragraph,
 } from "./Nodes";
 import { EditorToolbar } from "./EditorToolbar";
 
@@ -60,18 +60,16 @@ const plugins = [
   onKeyDownPlugin({ key: "u", type: "underscore" }),
   onKeyDownPlugin({ key: "`", type: "code" }),
   onKeyDownPlugin({ key: "~", type: "strikethrough" }),
-  onKeyDownPlugin({ key: "z", type: "code", isMark: false }),
+  onKeyDownPlugin({ key: "z", type: "blockcode", isMark: false }),
   onKeyDownPlugin({ key: "e", type: "blockquote", isMark: false }),
 ];
 
-const SyncingEditor: React.FC<RouteComponentProps<{ id: string }>> = ({
-  match: {
-    params: { id: groupId },
-  },
-}) => {
+interface Props {}
+
+const SyncingEditor: React.FC<Props> = () => {
   const editor = useRef<Editor | null>(null);
   const editorId = useRef(`${Date.now()}`);
-  // const { id: groupId } = props.match.params;
+  const { id: groupId } = useParams();
   const [value, setValue] = useState<Value | null>(null);
 
   useEffect(() => {
@@ -80,8 +78,8 @@ const SyncingEditor: React.FC<RouteComponentProps<{ id: string }>> = ({
         return res.json();
       })
       .then((data) => {
-        setValue(Value.fromJSON(data.value));
         console.log(data);
+        if (!("error" in data)) setValue(Value.fromJSON(data.value));
       });
 
     const eventName = `remote-operations-to-${groupId}`;
@@ -101,7 +99,7 @@ const SyncingEditor: React.FC<RouteComponentProps<{ id: string }>> = ({
 
   // TODO: 使用Lodash deboundced节省网络资源
   const handleChange = (params: OnChangeParam) => {
-    console.log(value?.toJSON());
+    // console.log(params.value.toJSON());
     setValue(params.value);
 
     const ops = params.operations
@@ -143,9 +141,9 @@ const SyncingEditor: React.FC<RouteComponentProps<{ id: string }>> = ({
       case "underlined":
       case "strikethrough":
       case "code":
+        // TODO: 添加键盘光标位置是否处于编辑器内。
+        // if (document.getSelection())
         editor.current?.toggleMark(type);
-        // if (value?.activeMarks.some((mark) => mark?.type === markType))
-        // target.classList.toggle("active");
         break;
       // toggle blocks
       case "blockcode":
@@ -173,6 +171,8 @@ const SyncingEditor: React.FC<RouteComponentProps<{ id: string }>> = ({
     next: () => any
   ) => {
     switch (props.node.type) {
+      case "paragraph":
+        return <Paragraph {...props} />;
       case "blockcode":
         return <CodeBlock {...props} />;
       case "blockquote":
@@ -204,19 +204,16 @@ const SyncingEditor: React.FC<RouteComponentProps<{ id: string }>> = ({
   };
 
   return (
-    <div className="container">
-      <EditorToolbar
-        handleToggleButton={handleToggleButton}
-        isActive={hasSelectMark}
-      />
+    <div className="container doc">
+      <EditorToolbar onClick={handleToggleButton} isActive={hasSelectMark} />
       <Editor
-        style={{
-          backgroundColor: "#f1f1f1",
-          minHeight: "50vh",
-        }}
+        className="editor shadow bg-light rounded border mt-3 p-3"
         ref={editor}
         value={value || loadingValue}
         readOnly={value ? false : true}
+        autoFocus={true}
+        placeholder="说点什么..."
+        role="editor"
         plugins={plugins}
         onChange={handleChange}
         renderBlock={handleRenderBlock}

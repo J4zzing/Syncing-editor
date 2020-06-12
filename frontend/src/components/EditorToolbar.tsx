@@ -1,5 +1,4 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { ButtonToolbar, ButtonGroup, Button } from "react-bootstrap";
 import {
   FormatBold,
@@ -9,39 +8,65 @@ import {
   Code,
   FormatQuote,
 } from "@material-ui/icons";
+import "jquery";
+import "bootstrap/dist/js/bootstrap.bundle";
 
 interface Props {
-  handleToggleButton: (e: React.MouseEvent) => void;
+  onClick: (e: React.MouseEvent) => void;
   isActive: (type: string) => boolean | undefined;
 }
 
-const markIcons = {
-  bold: <FormatBold />,
-  italic: <FormatItalic />,
-  underlined: <FormatUnderlined />,
-  strikethrough: <FormatStrikethrough />,
-  code: <Code />,
+const marks = {
+  bold: {
+    tooltip: "加粗(Ctrl+B)",
+    component: <FormatBold />,
+  },
+  italic: {
+    tooltip: "斜体(Ctrl+I)",
+    component: <FormatItalic />,
+  },
+  underlined: {
+    tooltip: "加下划线(Ctrl+U)",
+    component: <FormatUnderlined />,
+  },
+  strikethrough: {
+    tooltip: "加删除线(Ctrl+~)",
+    component: <FormatStrikethrough />,
+  },
+  code: {
+    tooltip: "代码(Ctrl+`)",
+    component: <Code />,
+  },
 };
-const blockIcons = {
-  blockcode: <Code />,
-  blockquote: <FormatQuote />,
+const blocks = {
+  blockquote: {
+    tooltip: "引用(Ctrl+Alt+E)",
+    component: <FormatQuote />,
+  },
+  blockcode: {
+    tooltip: "代码块(Ctrl+Alt+Z)",
+    component: <Code />,
+  },
 };
 export const EditorToolbar: React.FC<Props> = (props) => {
-  const toButtons = ([type, Icon]: [string, JSX.Element]) => (
+  const toButtons = ([key, val]: any) => (
     <Button
-      key={type}
-      variant="primary"
-      active={props.isActive(type)}
+      key={key}
+      variant="outline-info"
+      active={props.isActive(key)}
       onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
-      onClick={props.handleToggleButton}
-      data-btn-toggle={type}
+      onClick={props.onClick}
+      data-btn-toggle={key}
+      data-toggle="tooltip"
+      data-placement="bottom"
+      title={val.tooltip}
     >
-      {Icon}
+      {val.component}
     </Button>
   );
 
-  const toggleMarkButtons = Object.entries(markIcons).map(toButtons);
-  const toggleBlockButtons = Object.entries(blockIcons).map(toButtons);
+  const toggleMarkButtons = Object.entries(marks).map(toButtons);
+  const toggleBlockButtons = Object.entries(blocks).map(toButtons);
 
   return (
     <ButtonToolbar>

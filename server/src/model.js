@@ -12,6 +12,7 @@ const Mark = new Schema({
 const Node = new Schema({
   object: String,
   type: String,
+  data: Object,
   marks: [Mark],
   text: String,
 });
@@ -20,16 +21,21 @@ Node.add({
 });
 
 const Doc = new Schema({
-  author: String,
   object: {
     type: String,
     default: "value",
   },
   value: {
     document: {
+      object: {
+        type: String,
+        default: "document",
+      },
+      data: Object,
       nodes: [Node],
     },
   },
+  group: String,
 });
 
 module.exports = mongoose.model("Doc", Doc);
