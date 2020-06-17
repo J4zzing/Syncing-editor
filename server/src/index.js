@@ -22,21 +22,23 @@ app.use(
 app.use("/", router);
 
 io.on("connection", (socket) => {
+  // editor operations
   socket.on("new-operations", (data) => {
-    const { to: groupId, value } = data;
-    const callback = (err, doc) => {
+    const { to: docId, value } = data;
+    Doc.findById(docId, (err, doc) => {
       if (err) console.log(err);
       if (doc) {
+        io.emit(`remote-operations-to-${docId}`, data);
         doc.value = value;
         doc.save();
-        io.emit(`remote-operations-to-${groupId}`, data);
       }
-    };
-    if (groupId === "public") {
-      Doc.findOne({ group: "public" }, callback);
-    } else {
-      Doc.findById(groupId, callback);
-    }
+    });
+  });
+
+  // chat messages
+  socket.on("new-message", (data) => {
+    const { to: docId, ...msg } = data;
+    io.emit(`remote-message-to-${docId}`, msg);
   });
 });
 

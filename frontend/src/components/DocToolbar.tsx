@@ -11,11 +11,6 @@ import {
 import "jquery";
 import "bootstrap/dist/js/bootstrap.bundle";
 
-interface Props {
-  onClick: (e: React.MouseEvent) => void;
-  isActive: (type: string) => boolean | undefined;
-}
-
 const marks = {
   bold: {
     tooltip: "加粗(Ctrl+B)",
@@ -48,7 +43,13 @@ const blocks = {
     component: <Code />,
   },
 };
-export const EditorToolbar: React.FC<Props> = (props) => {
+
+interface Props {
+  onClick: (e: React.MouseEvent) => void;
+  isActive: (type: string) => boolean | undefined;
+}
+
+export const DocToolbar: React.FC<Props> = (props) => {
   const toButtons = ([key, val]: any) => (
     <Button
       key={key}

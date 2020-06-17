@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-const server = "http://localhost:4000";
+import { server } from "./CONSTANTS";
 
-export const DocList = () => {
+const DocList = () => {
   const [list, setList] = useState<string[]>([]);
   useEffect(() => {
-    fetch(`${server}/groups/`)
+    fetch(`${server}/docs/`)
       .then((res) => {
         return res.json();
       })
@@ -20,16 +20,19 @@ export const DocList = () => {
       //
     };
   }, []);
+
   return (
     <div className="d-flex flex-column align-items-center">
       <h1>所有公开文档</h1>
       {list
         ? list.map((id) => (
             <p key={id}>
-              <Link to={`/groups/${id}`}>{`文档：${id}`}</Link>
+              <Link to={`/docs/${id}`}>{`文档：${id}`}</Link>
             </p>
           ))
         : "..."}
     </div>
   );
 };
+
+export default DocList;

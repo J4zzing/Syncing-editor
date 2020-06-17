@@ -1,10 +1,64 @@
+/* default styles */
+ul {
+  padding: 0;
+}
+ul {
+  list-style-type: none;
+}
+blockquote {
+  border-left: 0.5rem solid #AAAAAA;
+  padding-left: 2rem;
+  color: grey;
+}
 #root {
   background: rgb(248, 249, 250);
-  min-height: 100vh;
+  padding-bottom: 1.5rem;
 }
+
 .editor {
   min-height: 70vh;
 }
+
+.chatboard {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+  flex: 1 20vw;
+  display: flex;
+  flex-flow: column;
+}
+@media (min-width: 1200px) {
+  .doc {
+    flex: 1 60vw;
+  }
+  .chatboard {
+    margin: calc(1rem + 40.5px) 0 0 1rem;
+    flex: 0 20vw;
+  }
+}
+
+.chatboard div,
+.chatboard input {
+  margin-bottom: 0.5rem;
+}
+.messages {
+  max-height: 50vh;
+  overflow: scroll;
+}
+.messages li:nth-child(even) {
+  background-color: lightgrey;
+}
+.messages {
+  padding: 0.25rem;
+  border: 1px solid #dee2e6;
+  min-height: 20vh;
+  flex: 1;
+}
+#btn-send {
+  float: right;
+}
+
 /* create-react-app */
 .App {
   text-align: center;

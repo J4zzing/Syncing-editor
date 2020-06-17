@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const Doc = require("./model");
 
-const initialValue = {
+const defaultValue = {
   object: "value",
   value: {
     document: {
@@ -13,18 +13,19 @@ const initialValue = {
           nodes: [
             {
               object: "text",
-              text: "欢迎来到群组，你可以xxxx。",
+              text: "",
             },
           ],
         },
       ],
     },
   },
-  group: "public",
+  initializer: "",
 };
 
 router
-  .get("/groups/", (req, res) => {
+  .route("/docs/")
+  .get((req, res) => {
     Doc.find({}, "_id group", (err, docs) => {
       if (err) console.log(err);
       if (!docs) {
@@ -35,39 +36,23 @@ router
       res.json(docs);
     });
   })
-  .post("/groups/", (req, res) => {
-    const { group } = req.params;
-    if (!group) {
-      res.status(400).json({
-        error: {
-          reason: "Not specified group name.",
-        },
-      });
-    }
-    const doc = new Doc({ group });
-    doc.save();
-    res.json(doc);
-  });
-
-router.get("/groups/public", (_req, res) => {
-  Doc.findOne({ group: "public" }, (err, doc) => {
-    if (err) console.log(err);
-    if (!doc) {
-      doc = new Doc(initialValue);
+  .put((req, res) => {
+    const { id } = req.params;
+    if (!id) {
+      const doc = new Doc(defaultValue);
       doc.save();
+      res.json(doc);
     }
-    res.json(doc);
   });
-});
 
-router.get("/groups/:id", (req, res) => {
+router.get("/docs/:id", (req, res) => {
   const { id } = req.params;
   Doc.findById(id, (err, doc) => {
-    if (err) console.log(err);
+    if (err) throw new Error(err);
     if (!doc) {
       res.status(404).json({
         error: {
-          reason: "Not Found.",
+          reason: "Doc not found.",
         },
       });
     }

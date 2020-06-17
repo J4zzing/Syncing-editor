@@ -35,7 +35,7 @@ const Doc = new Schema({
       nodes: [Node],
     },
   },
-  group: String,
+  initializer: String,
 });
 
 module.exports = mongoose.model("Doc", Doc);

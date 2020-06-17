@@ -6,11 +6,8 @@ import {
   RenderBlockProps,
   RenderMarkProps,
 } from "slate-react";
-import { RouteComponentProps, useParams } from "react-router-dom";
-// import _ from "lodash";
-import io from "socket.io-client";
+import { useParams } from "react-router-dom";
 
-import { loadingValue } from "./loadingValue";
 import {
   CodeBlock,
   BoldMark,
@@ -21,10 +18,10 @@ import {
   QuoteBlock,
   Paragraph,
 } from "./Nodes";
-import { EditorToolbar } from "./EditorToolbar";
+import { DocToolbar } from "./DocToolbar";
+import { loadingValue } from "./loadingValue";
+import { server } from "./CONSTANTS";
 
-const server = "http://localhost:4000";
-const socket = io(server);
 const onKeyDownPlugin = ({
   key,
   type,
@@ -64,16 +61,19 @@ const plugins = [
   onKeyDownPlugin({ key: "e", type: "blockquote", isMark: false }),
 ];
 
-interface Props {}
+interface Props {
+  socket: SocketIOClient.Socket;
+}
 
-const SyncingEditor: React.FC<Props> = () => {
+const SyncingEditor: React.FC<Props> = ({ socket }) => {
   const editor = useRef<Editor | null>(null);
   const editorId = useRef(`${Date.now()}`);
-  const { id: groupId } = useParams();
+  const { id } = useParams();
   const [value, setValue] = useState<Value | null>(null);
 
   useEffect(() => {
-    fetch(`${server}/groups/${groupId}`)
+    // TODO: try to use async/await here
+    fetch(`${server}/docs/${id}`)
       .then((res) => {
         return res.json();
       })
@@ -81,8 +81,10 @@ const SyncingEditor: React.FC<Props> = () => {
         console.log(data);
         if (!("error" in data)) setValue(Value.fromJSON(data.value));
       });
+  }, [id]);
 
-    const eventName = `remote-operations-to-${groupId}`;
+  useEffect(() => {
+    const eventName = `remote-operations-to-${id}`;
     socket.on(
       eventName,
       ({ from: remoteEditorId, ops }: { from: string; ops: Operation[] }) => {
@@ -95,9 +97,9 @@ const SyncingEditor: React.FC<Props> = () => {
     return () => {
       socket.off(eventName);
     };
-  }, [groupId]);
+  }, [id]);
 
-  // TODO: 使用Lodash deboundced节省网络资源
+  // TODO: 节流
   const handleChange = (params: OnChangeParam) => {
     // console.log(params.value.toJSON());
     setValue(params.value);
@@ -122,7 +124,7 @@ const SyncingEditor: React.FC<Props> = () => {
     if (ops.length)
       socket.emit("new-operations", {
         from: editorId.current,
-        to: groupId,
+        to: id,
         ops,
         value: params.value.toJSON(),
       });
@@ -165,6 +167,10 @@ const SyncingEditor: React.FC<Props> = () => {
     return value?.blocks.some((block) => block?.type === type);
   };
 
+  const isActive = (type: string) => {
+    return type.includes("block") ? hasSelectBlock(type) : hasSelectMark(type);
+  };
+
   const handleRenderBlock = (
     props: RenderBlockProps,
     editor: Editor,
@@ -204,8 +210,8 @@ const SyncingEditor: React.FC<Props> = () => {
   };
 
   return (
-    <div className="container doc">
-      <EditorToolbar onClick={handleToggleButton} isActive={hasSelectMark} />
+    <div className="doc ">
+      <DocToolbar onClick={handleToggleButton} isActive={isActive} />
       <Editor
         className="editor shadow bg-light rounded border mt-3 p-3"
         ref={editor}
